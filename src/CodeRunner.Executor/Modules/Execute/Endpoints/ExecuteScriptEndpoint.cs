@@ -32,8 +32,8 @@ public static class ExecuteScriptEndpoint
         }
     }
 
-    public static SubmittedScript Get(int id, IMessageConsumer messageConsumer)
+    public static SubmittedScript Get(int id)
     {
-        return messageConsumer.Consume<SubmittedScript>();
+        return default;
     }
 }

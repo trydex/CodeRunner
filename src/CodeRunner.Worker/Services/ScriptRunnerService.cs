@@ -15,12 +15,29 @@ public class ScriptRunnerService
     }
     public ScriptExecutionResult Run(Script script)
     {
-        //all the logic for dynamic compilation and code execution is taken from this article
-        //https://laurentkempe.com/2019/02/18/dynamically-compile-and-run-code-using-dotNET-Core-3.0/
+        var result = new ScriptExecutionResult();
 
-        var assembly = _compiler.Compile(script.Code);
-        _runner.Execute(assembly, args: Array.Empty<string>());
+        try
+        {
+            //part of the logic for dynamic compilation and code execution is taken from this article
+            //https://laurentkempe.com/2019/02/18/dynamically-compile-and-run-code-using-dotNET-Core-3.0/
 
-        return default;
+            var assembly = _compiler.Compile(script.Code);
+            var (output, error) = _runner.ExecuteInSeparateProcess(assembly, args: Array.Empty<string>());
+
+            result.Output = output;
+            result.Error = error;
+
+            if (string.IsNullOrEmpty(error))
+            {
+                result.ExecutionStatus = ExecutionStatus.Success;
+            }
+        }
+        catch(Exception e)
+        {
+            result.ExecutionStatus = ExecutionStatus.Failed;
+        }
+
+        return result;
     }
 }

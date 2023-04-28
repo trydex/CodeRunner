@@ -2,6 +2,7 @@
 using CodeRunner.Worker.Jobs;
 using CodeRunner.Worker.Services;
 using CodeRunner.Worker.Settings;
+using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -84,7 +85,8 @@ public class Program
             {
                 Server = busSettings.Server,
                 Topic = busSettings.ScriptsTopicName,
-                Group = busSettings.ScriptsConsumerGroup
+                Group = busSettings.ScriptsConsumerGroup,
+                AutoOffsetReset = AutoOffsetReset.Latest
             });
         });
     }
