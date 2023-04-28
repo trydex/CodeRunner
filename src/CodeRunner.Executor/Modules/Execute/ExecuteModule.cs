@@ -13,6 +13,7 @@ public class ExecuteModule : IModule
     public IServiceCollection RegisterModule(IServiceCollection services)
     {
         services.AddScoped<IScriptsRepository, ScriptsRepository>();
+        services.AddScoped<IExecutionResultsRepository, ExecutionResultsRepository>();
 
         return services;
     }
@@ -20,7 +21,7 @@ public class ExecuteModule : IModule
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
     {
         endpoints.MapPost("/execute", ExecuteScriptEndpoint.Run);
-        endpoints.MapGet("/execute/{id}", ExecuteScriptEndpoint.Get);
+        endpoints.MapGet("/execute/{scriptId}", ExecuteScriptEndpoint.GetResult);
 
         return endpoints;
     }

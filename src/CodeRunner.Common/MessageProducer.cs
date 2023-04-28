@@ -4,23 +4,23 @@ using Newtonsoft.Json;
 
 namespace CodeRunner.Common;
 
-public interface IMessageWriter
+public interface IMessageProducer
 {
     Task Write<TMessage>(TMessage message);
 }
 
-public class WriterOptions
+public class MessageProducerOptions
 {
     public string Server { get; set; }
     public string Topic { get; set; }
 }
 
-public class MessageWriter : IMessageWriter, IDisposable
+public class MessageProducer : IMessageProducer, IDisposable
 {
     private readonly string _topic;
     private readonly IProducer<Null,string> _producer;
 
-    public MessageWriter(WriterOptions options)
+    public MessageProducer(MessageProducerOptions options)
     {
         _topic = options.Topic;
 

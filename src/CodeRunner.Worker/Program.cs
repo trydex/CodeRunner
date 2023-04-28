@@ -1,4 +1,5 @@
 ﻿using CodeRunner.Common;
+using CodeRunner.Worker;
 using CodeRunner.Worker.Jobs;
 using CodeRunner.Worker.Models;
 using CodeRunner.Worker.Repositories;
@@ -19,27 +20,31 @@ public class Program
         CreateDefaultBuilder().Build().Run();
     }
 
+    private static IConfiguration Configuration { get; set; }
+
     private static IHostBuilder CreateDefaultBuilder()
     {
         return Host.CreateDefaultBuilder()
-            .ConfigureAppConfiguration(app =>
+            .ConfigureAppConfiguration(configurationBuilder =>
             {
-                app.AddJsonFile("appsettings.json");
+                configurationBuilder.AddJsonFile(AppSettingsConstants.FileName);
+                Configuration = configurationBuilder.Build();
             })
             .ConfigureServices(ConfigureServices);
     }
 
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
-        ConfigureSettings(context, services);
-        AddApplicationDependencies(context, services);
+        ConfigureSettings(services);
+        AddApplicationDependencies(services);
         AddQuartz(services);
     }
 
-    private static void ConfigureSettings(HostBuilderContext context, IServiceCollection services)
+    private static void ConfigureSettings(IServiceCollection services)
     {
-        services.Configure<BusSettings>(context.Configuration.GetSection("Bus"));
-        services.Configure<ExecutionResultsDatabaseSettings>(context.Configuration.GetSection("ExecutionResultsDatabase"));
+        services.Configure<BusSettings>(Configuration.GetSection(AppSettingsConstants.BusSettingsSectionName));
+        services.Configure<ExecutionResultsDatabaseSettings>(Configuration.GetSection(AppSettingsConstants.ExecutionResultsDatabaseSectionName));
+        services.Configure<JobSettings>(Configuration.GetSection(AppSettingsConstants.JobSettingsSectionName));
     }
 
     private static void AddQuartz(IServiceCollection services)
@@ -51,11 +56,16 @@ public class Program
             var jobKey = new JobKey(nameof(CodeExecutionJob));
             q.AddJob<CodeExecutionJob>(opts => opts.WithIdentity(jobKey));
 
+            var repeatInterval = Options.Create(
+                    Configuration.GetSection(AppSettingsConstants.JobSettingsSectionName).Get<JobSettings>()
+                    ).Value
+                .RepeatIntervalInSeconds;
+
             q.AddTrigger(opts => opts
                 .ForJob(jobKey)
-                .WithIdentity($"{nameof(CodeExecutionJob)}-trigger")
+                .WithIdentity($"{jobKey.Name}-trigger")
                 .WithSimpleSchedule(x => x
-                    .WithIntervalInSeconds(1)
+                    .WithIntervalInSeconds(repeatInterval)
                     .RepeatForever())
             );
         });
@@ -63,7 +73,7 @@ public class Program
         services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
     }
 
-    private static void AddApplicationDependencies(HostBuilderContext context, IServiceCollection services)
+    private static void AddApplicationDependencies(IServiceCollection services)
     {
         services.AddScoped<CodeExecutionJob>();
         services.AddScoped<ScriptRunnerService>();
@@ -77,11 +87,8 @@ public class Program
         {
             var dbSettings = provider.GetService<IOptions<ExecutionResultsDatabaseSettings>>();
 
-            var mongoClient = new MongoClient(
-                dbSettings.Value.ConnectionString);
-
-            var mongoDatabase = mongoClient.GetDatabase(
-                dbSettings.Value.DatabaseName);
+            var mongoClient = new MongoClient(dbSettings.Value.ConnectionString);
+            var mongoDatabase = mongoClient.GetDatabase(dbSettings.Value.DatabaseName);
 
             return mongoDatabase;
         });
@@ -97,11 +104,11 @@ public class Program
             return collection;
         });
 
-        services.AddSingleton<IMessageWriter, MessageWriter>(provider =>
+        services.AddSingleton<IMessageProducer, MessageProducer>(provider =>
         {
             var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
 
-            return new MessageWriter(new WriterOptions
+            return new MessageProducer(new MessageProducerOptions
             {
                 Server = busSettings.Server,
                 Topic = busSettings.ExecutionResultsTopicName
@@ -112,7 +119,7 @@ public class Program
         {
             var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
 
-            return new MessageConsumer(new ConsumerOptions
+            return new MessageConsumer(new MessageConsumerOptions
             {
                 Server = busSettings.Server,
                 Topic = busSettings.ScriptsTopicName,

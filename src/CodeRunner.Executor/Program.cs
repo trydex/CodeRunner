@@ -12,6 +12,7 @@ builder.Services.RegisterModules();
 builder.Services.ConfigureSettings(builder.Configuration);
 builder.Services.AddDataBase();
 builder.Services.AddBusServices();
+builder.Services.AddCache();
 
 var app = builder.Build();
 

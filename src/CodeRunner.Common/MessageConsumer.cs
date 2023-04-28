@@ -8,7 +8,7 @@ public interface IMessageConsumer
     TMessage Consume<TMessage>();
 }
 
-public class ConsumerOptions
+public class MessageConsumerOptions
 {
     public string Server { get; set; }
     public string Topic { get; set; }
@@ -20,18 +20,18 @@ public class MessageConsumer : IMessageConsumer, IDisposable
 {
     private readonly IConsumer<Null,string> _consumer;
 
-    public MessageConsumer(ConsumerOptions consumerOptions)
+    public MessageConsumer(MessageConsumerOptions messageConsumerOptions)
     {
         var config = new ConsumerConfig
         {
-            GroupId = consumerOptions.Group,
-            BootstrapServers = consumerOptions.Server,
-            AutoOffsetReset = consumerOptions.AutoOffsetReset
+            GroupId = messageConsumerOptions.Group,
+            BootstrapServers = messageConsumerOptions.Server,
+            AutoOffsetReset = messageConsumerOptions.AutoOffsetReset
         };
 
         _consumer = new ConsumerBuilder<Null, string>(config).Build();
 
-        _consumer.Subscribe(consumerOptions.Topic);
+        _consumer.Subscribe(messageConsumerOptions.Topic);
     }
     
     public TMessage? Consume<TMessage>()

@@ -10,14 +10,14 @@ namespace CodeRunner.Worker.Jobs;
 public class CodeExecutionJob : IJob
 {
     private readonly IMessageConsumer _scriptConsumer;
-    private readonly IMessageWriter _resultProducer;
+    private readonly IMessageProducer _resultProducer;
     private readonly IScriptResultsRepository _scriptResultsRepository;
     private readonly ILogger<CodeExecutionJob> _logger;
 
     private readonly IScriptRunnerService _scriptRunnerService;
 
     public CodeExecutionJob(IMessageConsumer scriptConsumer,
-        IMessageWriter resultProducer,
+        IMessageProducer resultProducer,
         IScriptRunnerService scriptRunnerService,
         IScriptResultsRepository scriptResultsRepository,
         ILogger<CodeExecutionJob> logger)
