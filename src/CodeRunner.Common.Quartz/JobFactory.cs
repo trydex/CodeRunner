@@ -1,7 +1,7 @@
 using Quartz;
 using Quartz.Spi;
 
-namespace CodeRunner.Worker.Jobs;
+namespace CodeRunner.Common.Quartz;
 
 public class JobFactory : IJobFactory
 {

@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner.Executor", "src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner.Worker", "src\CodeRunner.Worker\CodeRunner.Worker.csproj", "{6F16FCC4-0BCE-4E42-A094-C9696681DD50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner.Common.Quartz", "src\CodeRunner.Common.Quartz\CodeRunner.Common.Quartz.csproj", "{8018558B-8E30-4B7A-9F50-E359829134DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,6 +19,7 @@ Global
 		{8624606C-DC67-404B-8130-97DF3DFE0D56} = {7E267EE3-A908-4856-94F3-9ED9CD749C07}
 		{6075ED1B-4D72-4585-A263-D1CA3BFE2BCA} = {7E267EE3-A908-4856-94F3-9ED9CD749C07}
 		{6F16FCC4-0BCE-4E42-A094-C9696681DD50} = {7E267EE3-A908-4856-94F3-9ED9CD749C07}
+		{8018558B-8E30-4B7A-9F50-E359829134DF} = {7E267EE3-A908-4856-94F3-9ED9CD749C07}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{8624606C-DC67-404B-8130-97DF3DFE0D56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -31,5 +34,9 @@ Global
 		{6F16FCC4-0BCE-4E42-A094-C9696681DD50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F16FCC4-0BCE-4E42-A094-C9696681DD50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F16FCC4-0BCE-4E42-A094-C9696681DD50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8018558B-8E30-4B7A-9F50-E359829134DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8018558B-8E30-4B7A-9F50-E359829134DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8018558B-8E30-4B7A-9F50-E359829134DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8018558B-8E30-4B7A-9F50-E359829134DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
