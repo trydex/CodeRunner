@@ -5,7 +5,7 @@ namespace CodeRunner.Worker.Services;
 
 public interface IRunner
 {
-    Task<IReadOnlyList<WorkerResult>>  ExecuteInProcess(byte[] compiledAssembly, string[] args, int workerCount);
+    Task<IReadOnlyList<ProcessResult>>  ExecuteInProcess(byte[] compiledAssembly, string[] args, int workerCount);
 }
 
 public class Runner : IRunner
@@ -17,7 +17,7 @@ public class Runner : IRunner
         _runtimeConfigContent = runtimeConfigProvider.GetRuntimeConfig();
     }
 
-    public async Task<IReadOnlyList<WorkerResult>> ExecuteInProcess(byte[] compiledAssembly, string[] args, int workerCount)
+    public async Task<IReadOnlyList<ProcessResult>> ExecuteInProcess(byte[] compiledAssembly, string[] args, int workerCount)
     {
         var tempFileName = Path.GetTempFileName();
         var dllPath = tempFileName + ".dll";
@@ -38,7 +38,7 @@ public class Runner : IRunner
         var curDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
         processStartInfo.EnvironmentVariables["PATH"] += ";" + curDir;
 
-        var workerTasks = new List<Task<WorkerResult>>();
+        var workerTasks = new List<Task<ProcessResult>>();
 
         for (int i = 1; i <= workerCount; i++)
         {
@@ -53,7 +53,7 @@ public class Runner : IRunner
                 var output = process.StandardOutput.ReadToEnd();
                 var error = process.StandardError.ReadToEnd();
 
-                return new WorkerResult
+                return new ProcessResult
                 {
                     Id = workerId,
                     Output = output,

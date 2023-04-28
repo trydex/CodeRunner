@@ -43,27 +43,20 @@ public class ScriptRunnerService : IScriptRunnerService
             var compileResult = _compiler.Compile(script.Code);
             if (!compileResult.Success)
             {
-                result.Results = new List<WorkerResult>
-                {
-                    new ()
-                    {
-                        Id = -1,
-                        Error = string.Join(Environment.NewLine, compileResult.Errors)
-                    }
-                };
+                result.CompilationErrors = compileResult.Errors.ToList();
 
                 _logger.LogInformation($"Execute script with Id = {script?.Id} aborted by compile errors");
 
                 return result;
             }
 
-            result.Results = await _runner.ExecuteInProcess(
+            result.ProcessResults = await _runner.ExecuteInProcess(
                 compiledAssembly: compileResult.Assembly,
                 args: Array.Empty<string>(),
-                workerCount: script.WorkerCount
+                workerCount: script.ProcessCount
                 );
 
-            if (result.Results.All(x => string.IsNullOrEmpty(x.Error)))
+            if (result.ProcessResults.All(x => string.IsNullOrEmpty(x.Error)))
             {
                 result.Status = ExecutionStatus.Success;
             }

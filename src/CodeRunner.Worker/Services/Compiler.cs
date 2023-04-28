@@ -61,14 +61,7 @@ public class Compiler : ICompiler
 
         var parsedSyntaxTree = SyntaxFactory.ParseSyntaxTree(codeString, options);
 
-        var references = new List<MetadataReference>
-        {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Diagnostics.Process).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.ComponentModel.Component).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
-        };
+        var references = GetReferences();
 
         Assembly.GetEntryAssembly()?.GetReferencedAssemblies().ToList()
             .ForEach(a => references.Add(MetadataReference.CreateFromFile(Assembly.Load(a).Location)));
@@ -79,5 +72,17 @@ public class Compiler : ICompiler
             options: new CSharpCompilationOptions(OutputKind.ConsoleApplication,
                 optimizationLevel: OptimizationLevel.Release,
                 assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
+    }
+
+    private static List<MetadataReference> GetReferences()
+    {
+        return new List<MetadataReference>
+        {
+            MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(System.Diagnostics.Process).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(System.ComponentModel.Component).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
+        };
     }
 }

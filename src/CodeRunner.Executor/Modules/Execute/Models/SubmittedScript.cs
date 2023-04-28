@@ -11,11 +11,11 @@ public record SubmittedScript
 
     [BsonIgnoreIfDefault] public DateTime SubmitDate { get; set; } = DateTime.UtcNow;
 
-    public int WorkerCount { get; set; }
+    public int ProcessCount { get; set; }
     public string Code { get; set; }
 
     public override int GetHashCode()
     {
-        return Code.GetHashCode() + WorkerCount.GetHashCode();
+        return Code.GetHashCode() + ProcessCount.GetHashCode();
     }
 }
