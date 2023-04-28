@@ -1,4 +1,5 @@
 using CodeRunner.Common;
+using CodeRunner.Common.Kafka.Producer;
 using CodeRunner.Executor.Modules.Execute.Models;
 using CodeRunner.Executor.Repositories;
 using CodeRunner.Executor.Services;

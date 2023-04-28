@@ -1,4 +1,6 @@
 using CodeRunner.Common;
+using CodeRunner.Common.Kafka.Consumer;
+using CodeRunner.Common.Kafka.Producer;
 using CodeRunner.Worker.Models;
 using CodeRunner.Worker.Repositories;
 using CodeRunner.Worker.Services;

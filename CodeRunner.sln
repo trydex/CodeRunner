@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{7E267EE3-A908-4856-94F3-9ED9CD749C07}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner.Common", "src\CodeRunner.Common\CodeRunner.Common.csproj", "{8624606C-DC67-404B-8130-97DF3DFE0D56}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner.Common.Kafka", "src\CodeRunner.Common.Kafka\CodeRunner.Common.Kafka.csproj", "{8624606C-DC67-404B-8130-97DF3DFE0D56}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeRunner.Executor", "src\CodeRunner.Executor\CodeRunner.Executor.csproj", "{6075ED1B-4D72-4585-A263-D1CA3BFE2BCA}"
 EndProject

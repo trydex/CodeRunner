@@ -1,19 +1,8 @@
 using System.Net;
+using System.Text.Json;
 using Confluent.Kafka;
-using Newtonsoft.Json;
 
-namespace CodeRunner.Common;
-
-public interface IMessageProducer
-{
-    Task Write<TMessage>(TMessage message);
-}
-
-public class MessageProducerOptions
-{
-    public string Server { get; set; }
-    public string Topic { get; set; }
-}
+namespace CodeRunner.Common.Kafka.Producer;
 
 public class MessageProducer : IMessageProducer, IDisposable
 {
@@ -34,7 +23,7 @@ public class MessageProducer : IMessageProducer, IDisposable
     }
     public async Task Write<TMessage>(TMessage message)
     {
-        var kafkaMessage = new Message<Null, string> { Value = JsonConvert.SerializeObject(message)};
+        var kafkaMessage = new Message<Null, string> { Value = JsonSerializer.Serialize(message)};
         await _producer.ProduceAsync(_topic, kafkaMessage);
     }
 

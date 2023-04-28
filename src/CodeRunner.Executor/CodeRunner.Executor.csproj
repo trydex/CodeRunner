@@ -18,7 +18,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CodeRunner.Common\CodeRunner.Common.csproj" />
+      <ProjectReference Include="..\CodeRunner.Common.Kafka\CodeRunner.Common.Kafka.csproj" />
     </ItemGroup>
 
     <ItemGroup>

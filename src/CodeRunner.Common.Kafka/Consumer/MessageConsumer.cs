@@ -1,20 +1,7 @@
+using System.Text.Json;
 using Confluent.Kafka;
-using Newtonsoft.Json;
 
-namespace CodeRunner.Common;
-
-public interface IMessageConsumer
-{
-    TMessage Consume<TMessage>();
-}
-
-public class MessageConsumerOptions
-{
-    public string Server { get; set; }
-    public string Topic { get; set; }
-    public string Group { get; set; }
-    public AutoOffsetReset AutoOffsetReset { get; set; } = AutoOffsetReset.Earliest;
-}
+namespace CodeRunner.Common.Kafka.Consumer;
 
 public class MessageConsumer : IMessageConsumer, IDisposable
 {
@@ -39,14 +26,9 @@ public class MessageConsumer : IMessageConsumer, IDisposable
         var result = _consumer.Consume();
 
         if(result != null)
-            return JsonConvert.DeserializeObject<TMessage>(result.Message.Value);
+            return JsonSerializer.Deserialize<TMessage>(result.Message.Value);
 
         return default;
-    }
-
-    public TMessage Consume<TMessage>(string server, string topic, string consumerGroup)
-    {
-        throw new NotImplementedException();
     }
 
     public void Dispose()
