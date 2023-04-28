@@ -42,7 +42,7 @@ public class CodeExecutionJob : IJob
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Job with key {context.JobDetail.Key.Name} failed", ex);
+            _logger.LogError(ex, $"Job with key {context.JobDetail.Key.Name} failed");
             throw;
         }
 

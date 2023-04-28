@@ -30,7 +30,7 @@ public static class ExecuteScriptEndpoint
         }
         catch (Exception ex)
         {
-            logger.LogError("Execute script failed", ex, script);
+            logger.LogError(ex,$"Execute script with Id = {script.Id} failed");
             throw;
         }
 

@@ -64,7 +64,7 @@ public class ScriptRunnerService : IScriptRunnerService
         catch(Exception ex)
         {
             result.Status = ExecutionStatus.Failed;
-            _logger.LogError($"Execute script with Id = {script?.Id} failed", ex);
+            _logger.LogError(ex, $"Execute script with Id = {script?.Id} failed");
         }
 
         _logger.LogInformation($"Execute script with Id = {script?.Id} finished");
