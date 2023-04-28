@@ -14,9 +14,8 @@ public class CodeExecutionJob : IJob
     private readonly IMessageConsumer _scriptConsumer;
     private readonly IMessageProducer _resultProducer;
     private readonly IScriptResultsRepository _scriptResultsRepository;
-    private readonly ILogger<CodeExecutionJob> _logger;
-
     private readonly IScriptRunnerService _scriptRunnerService;
+    private readonly ILogger<CodeExecutionJob> _logger;
 
     public CodeExecutionJob(IMessageConsumer scriptConsumer,
         IMessageProducer resultProducer,

@@ -9,7 +9,8 @@ public record SubmittedScript
     [BsonRepresentation(BsonType.String)]
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    [BsonIgnoreIfDefault] public DateTime SubmitDate { get; set; } = DateTime.UtcNow;
+    [BsonIgnoreIfDefault]
+    public DateTime SubmitDate { get; set; } = DateTime.UtcNow;
 
     public int ProcessCount { get; set; }
     public string Code { get; set; }

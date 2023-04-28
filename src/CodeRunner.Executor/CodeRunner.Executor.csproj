@@ -12,6 +12,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
         <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
+        <PackageReference Include="Quartz.Extensions.Hosting" Version="3.6.2" />
         <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
         <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.5.0" />
@@ -19,10 +20,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CodeRunner.Common.Kafka\CodeRunner.Common.Kafka.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Jobs" />
+      <ProjectReference Include="..\CodeRunner.Common.Quartz\CodeRunner.Common.Quartz.csproj" />
     </ItemGroup>
 
 </Project>

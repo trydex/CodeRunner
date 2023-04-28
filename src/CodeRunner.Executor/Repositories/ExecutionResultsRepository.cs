@@ -7,6 +7,7 @@ public interface IExecutionResultsRepository
 {
     public Task<ExecutionResult?> GetAsync(Guid id);
     public Task CreateAsync(ExecutionResult script);
+    Task UpdateAsync(Guid id, ExecutionResult updatedScript);
 }
 
 public class ExecutionResultsRepository : IExecutionResultsRepository
@@ -26,4 +27,7 @@ public class ExecutionResultsRepository : IExecutionResultsRepository
 
     public async Task CreateAsync(ExecutionResult script) =>
         await _collection.InsertOneAsync(script);
+
+    public async Task UpdateAsync(Guid id, ExecutionResult updatedScript) =>
+        await _collection.ReplaceOneAsync(x => x.Id == id, updatedScript);
 }

@@ -1,9 +1,14 @@
+using CodeRunner.Common.Kafka.Consumer;
 using CodeRunner.Common.Kafka.Producer;
+using CodeRunner.Common.Quartz;
+using CodeRunner.Executor.Jobs;
 using CodeRunner.Executor.Modules.Execute.Models;
 using CodeRunner.Executor.Services;
 using CodeRunner.Executor.Settings;
+using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using Quartz;
 using StackExchange.Redis;
 
 namespace CodeRunner.Executor.Extensions;
@@ -15,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.Configure<BusSettings>(configuration.GetSection("Bus"));
         services.Configure<ScriptsDatabaseSettings>(configuration.GetSection("ScriptsDatabase"));
         services.Configure<CacheSettings>(configuration.GetSection("Cache"));
+        services.Configure<CacheSettings>(configuration.GetSection("Jobs"));
 
         return services;
     }
@@ -29,6 +35,19 @@ public static class ServiceCollectionExtensions
             {
                 Server = busSettings.Server,
                 Topic = busSettings.ScriptsTopicName
+            });
+        });
+
+        services.AddSingleton<IMessageConsumer, MessageConsumer>(provider =>
+        {
+            var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
+
+            return new MessageConsumer(new MessageConsumerOptions
+            {
+                Server = busSettings.Server,
+                Topic = busSettings.ResultsTopicName,
+                Group = busSettings.ResultsConsumerGroup,
+                AutoOffsetReset = AutoOffsetReset.Latest
             });
         });
 
@@ -88,5 +107,34 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICacheService, CacheService>();
 
         return services;
+    }
+    public static IServiceCollection AddQuartzJobs(this IServiceCollection services, JobSettings jobSettings)
+    {
+        services.AddScoped<PullExecutionResultsJob>();
+
+        services.AddQuartz(q =>
+        {
+            q.UseJobFactory<JobFactory>();
+
+            AddJob<PullExecutionResultsJob>(q);
+        });
+
+        services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
+        return services;
+
+        void AddJob<TJob>(IServiceCollectionQuartzConfigurator quartzConfigurator) where TJob : IJob
+        {
+            var jobKey = new JobKey(typeof(TJob).Name);
+            quartzConfigurator.AddJob<TJob>(opts => opts.WithIdentity(jobKey));
+
+            quartzConfigurator.AddTrigger(opts => opts
+                .ForJob(jobKey)
+                .WithIdentity($"{jobKey.Name}-trigger")
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInSeconds(jobSettings.RepeatIntervalInSeconds)
+                    .RepeatForever())
+            );
+        }
     }
 }

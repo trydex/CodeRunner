@@ -1,7 +1,8 @@
 using CodeRunner.Executor.Extensions;
+using CodeRunner.Executor.Settings;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
-
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -13,6 +14,7 @@ builder.Services.ConfigureSettings(builder.Configuration);
 builder.Services.AddDataBase();
 builder.Services.AddBusServices();
 builder.Services.AddCache();
+builder.Services.AddQuartzJobs(builder.Configuration.GetSection("Jobs").Get<JobSettings>());
 
 var app = builder.Build();
 

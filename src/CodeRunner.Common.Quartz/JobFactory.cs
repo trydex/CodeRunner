@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Quartz;
 using Quartz.Spi;
 
@@ -5,15 +6,28 @@ namespace CodeRunner.Common.Quartz;
 
 public class JobFactory : IJobFactory
 {
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IServiceScopeFactory _scopeFactory;
 
-    public JobFactory(IServiceProvider serviceProvider)
+    public JobFactory(IServiceScopeFactory scopeFactory)
     {
-        _serviceProvider = serviceProvider;
+        _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
     }
+
     public IJob NewJob(TriggerFiredBundle bundle, IScheduler scheduler)
     {
-        return _serviceProvider.GetService(bundle.JobDetail.JobType) as IJob;
+        var jobDetail = bundle.JobDetail;
+        var jobType = jobDetail.JobType;
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var job = scope.ServiceProvider.GetRequiredService(jobType) as IJob;
+
+            return job;
+        }
+        catch (Exception ex)
+        {
+            throw new SchedulerException($"Failed to instantiate job {jobDetail.Key}", ex);
+        }
     }
 
     public void ReturnJob(IJob job)

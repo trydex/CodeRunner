@@ -1,5 +1,4 @@
-﻿using CodeRunner.Common;
-using CodeRunner.Common.Kafka.Consumer;
+﻿using CodeRunner.Common.Kafka.Consumer;
 using CodeRunner.Common.Kafka.Producer;
 using CodeRunner.Common.Quartz;
 using CodeRunner.Worker;
