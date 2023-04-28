@@ -1,3 +1,4 @@
+using CodeRunner.Common;
 using CodeRunner.Executor.Modules.Execute.Models;
 using CodeRunner.Executor.Settings;
 using Microsoft.Extensions.Options;
@@ -7,17 +8,33 @@ namespace CodeRunner.Executor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureSettings(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static IServiceCollection ConfigureSettings(this IServiceCollection services, IConfiguration configuration)
     {
-        serviceCollection.Configure<BusSettings>(configuration.GetSection("Bus"));
-        serviceCollection.Configure<ScriptsDatabaseSettings>(configuration.GetSection("ScriptsDatabase"));
+        services.Configure<BusSettings>(configuration.GetSection("Bus"));
+        services.Configure<ScriptsDatabaseSettings>(configuration.GetSection("ScriptsDatabase"));
 
-        return serviceCollection;
+        return services;
     }
 
-    public static IServiceCollection AddDataBase(this IServiceCollection serviceCollection)
+    public static IServiceCollection AddBusServices(this IServiceCollection services)
     {
-        serviceCollection.AddScoped<IMongoDatabase>(provider =>
+        services.AddSingleton<IMessageWriter, MessageWriter>(provider =>
+        {
+            var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
+
+            return new MessageWriter(new WriterOptions
+            {
+                Server = busSettings.Server,
+                Topic = busSettings.ScriptsTopicName
+            });
+        });
+
+        return services;
+    }
+
+    public static IServiceCollection AddDataBase(this IServiceCollection services)
+    {
+        services.AddScoped<IMongoDatabase>(provider =>
         {
             var scriptsDatabaseSettings = provider.GetService<IOptions<ScriptsDatabaseSettings>>();
 
@@ -30,7 +47,7 @@ public static class ServiceCollectionExtensions
             return mongoDatabase;
         });
 
-        serviceCollection.AddScoped<IMongoCollection<SubmittedScript>>(provider =>
+        services.AddScoped<IMongoCollection<SubmittedScript>>(provider =>
         {
             var scriptsDatabaseSettings = provider.GetService<IOptions<ScriptsDatabaseSettings>>();
             var mongoDatabase = provider.GetService<IMongoDatabase>();
@@ -41,6 +58,6 @@ public static class ServiceCollectionExtensions
             return scriptsCollection;
         });
 
-        return serviceCollection;
+        return services;
     }
 }

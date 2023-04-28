@@ -11,6 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.RegisterModules();
 builder.Services.ConfigureSettings(builder.Configuration);
 builder.Services.AddDataBase();
+builder.Services.AddBusServices();
 
 var app = builder.Build();
 

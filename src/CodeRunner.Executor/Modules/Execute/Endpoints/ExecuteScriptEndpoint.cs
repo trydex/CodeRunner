@@ -21,7 +21,7 @@ public static class ExecuteScriptEndpoint
             //try to get script execution result from cache by hash
             //if doesn't exists enqueue to the execution pool
             await scriptsRepository.CreateAsync(script);
-            await messageWriter.Write(busSettings.Server, busSettings.ScriptsTopicName, script);
+            await messageWriter.Write(script);
 
             return default;
         }
@@ -32,9 +32,8 @@ public static class ExecuteScriptEndpoint
         }
     }
 
-    public static SubmittedScript Get(int id, IOptions<BusSettings> configuration, IMessageConsumer messageConsumer)
+    public static SubmittedScript Get(int id, IMessageConsumer messageConsumer)
     {
-        var busSettings = configuration.Value;
-        return messageConsumer.Consume<SubmittedScript>(busSettings.Server, busSettings.ScriptsTopicName, $"{busSettings.ScriptsTopicName}-consumers");
+        return messageConsumer.Consume<SubmittedScript>();
     }
 }

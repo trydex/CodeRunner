@@ -6,22 +6,40 @@ namespace CodeRunner.Common;
 
 public interface IMessageWriter
 {
-    Task Write<TMessage>(string server, string topic, TMessage message);
+    Task Write<TMessage>(TMessage message);
 }
 
-public class MessageWriter : IMessageWriter
+public class WriterOptions
 {
-    public async Task Write<TMessage>(string server, string topic, TMessage message)
+    public string Server { get; set; }
+    public string Topic { get; set; }
+}
+
+public class MessageWriter : IMessageWriter, IDisposable
+{
+    private readonly string _topic;
+    private readonly IProducer<Null,string> _producer;
+
+    public MessageWriter(WriterOptions options)
     {
+        _topic = options.Topic;
+
         var config = new ProducerConfig
         {
-            BootstrapServers = server,
+            BootstrapServers = options.Server,
             ClientId = Dns.GetHostName(),
         };
 
-        using var producer = new ProducerBuilder<Null, string>(config).Build();
-
+        _producer = new ProducerBuilder<Null, string>(config).Build();
+    }
+    public async Task Write<TMessage>(TMessage message)
+    {
         var kafkaMessage = new Message<Null, string> { Value = JsonConvert.SerializeObject(message)};
-        await producer.ProduceAsync(topic, kafkaMessage);
+        await _producer.ProduceAsync(_topic, kafkaMessage);
+    }
+
+    public void Dispose()
+    {
+        _producer.Dispose();
     }
 }
