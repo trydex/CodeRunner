@@ -15,6 +15,9 @@ public class ScriptRunnerService
     }
     public ScriptExecutionResult Run(Script script)
     {
+        //all the logic for dynamic compilation and code execution is taken from this article
+        //https://laurentkempe.com/2019/02/18/dynamically-compile-and-run-code-using-dotNET-Core-3.0/
+
         var assembly = _compiler.Compile(script.Code);
         _runner.Execute(assembly, args: Array.Empty<string>());
 
