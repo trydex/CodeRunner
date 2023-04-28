@@ -5,39 +5,37 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace CodeRunner.Worker.Services;
 
+public record CompileResult(bool Success, byte[] Assembly, IEnumerable<string> Errors);
+
 public interface ICompiler
 {
-    byte[] Compile(string source);
+    CompileResult Compile(string source);
 }
 
 public class Compiler : ICompiler
 {
-    public byte[] Compile(string source)
+    public CompileResult Compile(string source)
     {
-        using (var peStream = new MemoryStream())
+        using var peStream = new MemoryStream();
+        var result = GenerateCode(source).Emit(peStream);
+
+        if (!result.Success)
         {
-            var result = GenerateCode(source).Emit(peStream);
+            var failures = result.Diagnostics
+                .Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
 
-            if (!result.Success)
+            var errors = new List<string>();
+
+            foreach (var diagnostic in failures)
             {
-                Console.WriteLine("Compilation done with error.");
-
-                var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
-
-                foreach (var diagnostic in failures)
-                {
-                    Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
-                }
-
-                return null;
+                errors.Add($"{diagnostic.Id}: {diagnostic.GetMessage()}");
             }
-
-            Console.WriteLine("Compilation done without any error.");
-
-            peStream.Seek(0, SeekOrigin.Begin);
-
-            return peStream.ToArray();
+            return new CompileResult(false, Array.Empty<byte>(), errors);
         }
+
+        peStream.Seek(0, SeekOrigin.Begin);
+
+        return new CompileResult(true, peStream.ToArray(), Enumerable.Empty<string>());
     }
 
     private static CSharpCompilation GenerateCode(string sourceCode)
@@ -50,7 +48,10 @@ public class Compiler : ICompiler
         var references = new List<MetadataReference>
         {
             MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location)
+            MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(System.Diagnostics.Process).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(System.ComponentModel.Component).Assembly.Location),
+            MetadataReference.CreateFromFile(typeof(System.Linq.Enumerable).Assembly.Location),
         };
 
         Assembly.GetEntryAssembly()?.GetReferencedAssemblies().ToList()

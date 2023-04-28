@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
+using CodeRunner.Worker.Models;
 
 namespace CodeRunner.Worker.Services;
 
 public interface IRunner
 {
-    (string ouput, string error) ExecuteInProcess(byte[] compiledAssembly, string[] args);
+    Task<IReadOnlyList<WorkerResult>>  ExecuteInProcess(byte[] compiledAssembly, string[] args, int workerCount);
 }
 
 public class Runner : IRunner
@@ -16,14 +17,14 @@ public class Runner : IRunner
         _runtimeConfigContent = runtimeConfigProvider.GetRuntimeConfig();
     }
 
-    public (string ouput, string error) ExecuteInProcess(byte[] compiledAssembly, string[] args)
+    public async Task<IReadOnlyList<WorkerResult>> ExecuteInProcess(byte[] compiledAssembly, string[] args, int workerCount)
     {
         var tempFileName = Path.GetTempFileName();
         var dllPath = tempFileName + ".dll";
         var runtimeConfigPath = tempFileName + ".runtimeconfig.json";
 
-        File.WriteAllBytes(dllPath, compiledAssembly);
-        File.WriteAllText(runtimeConfigPath, _runtimeConfigContent);
+        await File.WriteAllBytesAsync(dllPath, compiledAssembly);
+        await File.WriteAllTextAsync(runtimeConfigPath, _runtimeConfigContent);
 
         var processStartInfo = new ProcessStartInfo
         {
@@ -37,16 +38,41 @@ public class Runner : IRunner
         var curDir = Path.GetDirectoryName(typeof(object).Assembly.Location);
         processStartInfo.EnvironmentVariables["PATH"] += ";" + curDir;
 
-        var process = new Process { StartInfo = processStartInfo };
-        process.Start();
-        process.WaitForExit();
+        var workerTasks = new List<Task<WorkerResult>>();
 
-        var output = process.StandardOutput.ReadToEnd();
-        var error = process.StandardError.ReadToEnd();
+        for (int i = 1; i <= workerCount; i++)
+        {
+            var workerId = i;
+
+            var task = Task.Run(() =>
+            {
+                var process = new Process { StartInfo = processStartInfo };
+                process.Start();
+                process.WaitForExit();
+
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+
+                return new WorkerResult
+                {
+                    Id = workerId,
+                    Output = output,
+                    Error = error
+                };
+            });
+
+            workerTasks.Add(task);
+        }
+
+        await Task.WhenAll(workerTasks);
+
+        var workerResults = workerTasks
+            .Select(x => x.Result)
+            .ToList();
 
         File.Delete(dllPath);
         File.Delete(runtimeConfigPath);
 
-        return (output, error);
+        return workerResults;
     }
 }

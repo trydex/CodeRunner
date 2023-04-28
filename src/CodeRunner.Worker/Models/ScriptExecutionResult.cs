@@ -1,12 +1,21 @@
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace CodeRunner.Worker.Models;
 
+public class WorkerResult
+{
+    public int Id { get; set; }
+    public string Output { get; set; }
+    public string Error { get; set; }
+}
+
 public class ScriptExecutionResult
 {
     [BsonId]
-    public Guid Id { get; set; } = Guid.NewGuid();
+    [BsonRepresentation(BsonType.String)]
+    public Guid Id { get; set; }
+    public Script ScriptMetadata { get; set; }
     public ExecutionStatus Status { get; set; }
-    public string Output { get; set; }
-    public string Error { get; set; }
+    public IReadOnlyList<WorkerResult> Results { get; set; }
 }

@@ -70,6 +70,7 @@ public class Program
         services.AddScoped<IRuntimeConfigProvider, RuntimeConfigProvider>();
         services.AddScoped<IRunner, Runner>();
         services.AddScoped<ICompiler, Compiler>();
+        services.AddScoped<IScriptRunnerService, ScriptRunnerService>();
         services.AddScoped<IScriptResultsRepository, ScriptResultsRepository>();
 
         services.AddScoped<IMongoDatabase>(provider =>
@@ -103,7 +104,7 @@ public class Program
             return new MessageWriter(new WriterOptions
             {
                 Server = busSettings.Server,
-                Topic = busSettings.ScriptsTopicName
+                Topic = busSettings.ExecutionResultsTopicName
             });
         });
 
