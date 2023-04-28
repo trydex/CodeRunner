@@ -1,5 +1,6 @@
 using CodeRunner.Worker.Models;
 using CodeRunner.Worker.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace CodeRunner.Worker.Services;
 
@@ -12,17 +13,22 @@ public class ScriptRunnerService : IScriptRunnerService
 {
     private readonly IRunner _runner;
     private readonly ICompiler _compiler;
+    private readonly ILogger<ScriptRunnerService> _logger;
 
     public ScriptRunnerService(
         IRunner runner,
-        ICompiler compiler)
+        ICompiler compiler,
+        ILogger<ScriptRunnerService> logger)
     {
         _runner = runner;
         _compiler = compiler;
+        _logger = logger;
     }
 
     public async Task<ScriptExecutionResult> Run(Script script)
     {
+        _logger.LogInformation($"Execute script with Id = {script?.Id}");
+
         var result = new ScriptExecutionResult
         {
             Id = script.Id,
@@ -46,6 +52,8 @@ public class ScriptRunnerService : IScriptRunnerService
                     }
                 };
 
+                _logger.LogInformation($"Execute script with Id = {script?.Id} aborted by compile errors");
+
                 return result;
             }
 
@@ -60,10 +68,13 @@ public class ScriptRunnerService : IScriptRunnerService
                 result.Status = ExecutionStatus.Success;
             }
         }
-        catch(Exception e)
+        catch(Exception ex)
         {
             result.Status = ExecutionStatus.Failed;
+            _logger.LogError($"Execute script with Id = {script?.Id} failed", ex);
         }
+
+        _logger.LogInformation($"Execute script with Id = {script?.Id} finished");
 
         return result;
     }

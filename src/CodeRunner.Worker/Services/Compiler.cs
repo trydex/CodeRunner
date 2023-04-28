@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
+using Microsoft.Extensions.Logging;
 
 namespace CodeRunner.Worker.Services;
 
@@ -14,13 +15,24 @@ public interface ICompiler
 
 public class Compiler : ICompiler
 {
+    private readonly ILogger<Compiler> _logger;
+
+    public Compiler(ILogger<Compiler> logger)
+    {
+        _logger = logger;
+    }
+
     public CompileResult Compile(string source)
     {
+        _logger.LogTrace("Compiling source");
+
         using var peStream = new MemoryStream();
         var result = GenerateCode(source).Emit(peStream);
 
         if (!result.Success)
         {
+            _logger.LogTrace("Compiling failed with errors");
+
             var failures = result.Diagnostics
                 .Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
 
@@ -30,12 +42,16 @@ public class Compiler : ICompiler
             {
                 errors.Add($"{diagnostic.Id}: {diagnostic.GetMessage()}");
             }
+
             return new CompileResult(false, Array.Empty<byte>(), errors);
         }
 
         peStream.Seek(0, SeekOrigin.Begin);
+        var assembly = peStream.ToArray();
 
-        return new CompileResult(true, peStream.ToArray(), Enumerable.Empty<string>());
+        _logger.LogTrace("Successfully compiled");
+
+        return new CompileResult(true, assembly, Enumerable.Empty<string>());
     }
 
     private static CSharpCompilation GenerateCode(string sourceCode)
