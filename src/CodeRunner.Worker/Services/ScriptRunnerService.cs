@@ -1,18 +1,24 @@
 using CodeRunner.Worker.Models;
-using DynamicRun.Builder;
+using CodeRunner.Worker.Repositories;
 
 namespace CodeRunner.Worker.Services;
 
 public class ScriptRunnerService
 {
-    private readonly Runner _runner;
-    private readonly Compiler _compiler;
+    private readonly IRunner _runner;
+    private readonly ICompiler _compiler;
+    private readonly IScriptResultsRepository _scriptResultsRepository;
 
-    public ScriptRunnerService()
+    public ScriptRunnerService(
+        IRunner runner,
+        ICompiler compiler,
+        IScriptResultsRepository scriptResultsRepository)
     {
-        _compiler = new Compiler();
-        _runner = new Runner();
+        _runner = runner;
+        _compiler = compiler;
+        _scriptResultsRepository = scriptResultsRepository;
     }
+
     public ScriptExecutionResult Run(Script script)
     {
         var result = new ScriptExecutionResult();
@@ -23,19 +29,19 @@ public class ScriptRunnerService
             //https://laurentkempe.com/2019/02/18/dynamically-compile-and-run-code-using-dotNET-Core-3.0/
 
             var assembly = _compiler.Compile(script.Code);
-            var (output, error) = _runner.ExecuteInSeparateProcess(assembly, args: Array.Empty<string>());
+            var (output, error) = _runner.ExecuteInProcess(assembly, args: Array.Empty<string>());
 
             result.Output = output;
             result.Error = error;
 
             if (string.IsNullOrEmpty(error))
             {
-                result.ExecutionStatus = ExecutionStatus.Success;
+                result.Status = ExecutionStatus.Success;
             }
         }
         catch(Exception e)
         {
-            result.ExecutionStatus = ExecutionStatus.Failed;
+            result.Status = ExecutionStatus.Failed;
         }
 
         return result;

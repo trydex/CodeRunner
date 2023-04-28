@@ -13,6 +13,7 @@
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+      <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
       <PackageReference Include="Quartz" Version="3.6.2" />
       <PackageReference Include="Quartz.Extensions.Hosting" Version="3.6.2" />
     </ItemGroup>
@@ -20,6 +21,10 @@
     <ItemGroup>
       <None Remove="appsettings.json" />
       <Content Include="appsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="assembly.runtimeconfig.json" />
+      <Content Include="assembly.runtimeconfig.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>

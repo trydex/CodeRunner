@@ -7,10 +7,10 @@ public record SubmittedScript
 {
     [BsonId]
     [BsonRepresentation(BsonType.String)]
-    public Guid Id => Guid.NewGuid();
+    public Guid Id { get; set; } = Guid.NewGuid();
 
-    [BsonIgnoreIfDefault]
-    public DateTime SubmitDate => DateTime.UtcNow;
+    [BsonIgnoreIfDefault] public DateTime SubmitDate { get; set; } = DateTime.UtcNow;
+
     public int WorkerCount { get; set; }
     public string Code { get; set; }
 

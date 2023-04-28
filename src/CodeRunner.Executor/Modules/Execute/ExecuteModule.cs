@@ -10,11 +10,11 @@ namespace CodeRunner.Executor.Modules.Execute;
 
 public class ExecuteModule : IModule
 {
-    public IServiceCollection RegisterModule(IServiceCollection builder)
+    public IServiceCollection RegisterModule(IServiceCollection services)
     {
-        builder.AddScoped<IScriptsRepository, ScriptsRepository>();
+        services.AddScoped<IScriptsRepository, ScriptsRepository>();
 
-        return builder;
+        return services;
     }
 
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)

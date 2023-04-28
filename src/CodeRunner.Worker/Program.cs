@@ -1,5 +1,7 @@
 ﻿using CodeRunner.Common;
 using CodeRunner.Worker.Jobs;
+using CodeRunner.Worker.Models;
+using CodeRunner.Worker.Repositories;
 using CodeRunner.Worker.Services;
 using CodeRunner.Worker.Settings;
 using Confluent.Kafka;
@@ -7,8 +9,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
 using Quartz;
-using Quartz.Spi;
 
 public class Program
 {
@@ -30,14 +32,14 @@ public class Program
     private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
     {
         ConfigureSettings(context, services);
-        AddQuartz(services);
         AddApplicationDependencies(context, services);
+        AddQuartz(services);
     }
 
     private static void ConfigureSettings(HostBuilderContext context, IServiceCollection services)
     {
         services.Configure<BusSettings>(context.Configuration.GetSection("Bus"));
-        services.Configure<ScriptsDatabaseSettings>(context.Configuration.GetSection("ScriptsDatabase"));
+        services.Configure<ExecutionResultsDatabaseSettings>(context.Configuration.GetSection("ExecutionResultsDatabase"));
     }
 
     private static void AddQuartz(IServiceCollection services)
@@ -64,8 +66,36 @@ public class Program
     private static void AddApplicationDependencies(HostBuilderContext context, IServiceCollection services)
     {
         services.AddScoped<CodeExecutionJob>();
+        services.AddScoped<ScriptRunnerService>();
+        services.AddScoped<IRuntimeConfigProvider, RuntimeConfigProvider>();
+        services.AddScoped<IRunner, Runner>();
+        services.AddScoped<ICompiler, Compiler>();
+        services.AddScoped<IScriptResultsRepository, ScriptResultsRepository>();
 
-        services.AddSingleton<ScriptRunnerService>();
+        services.AddScoped<IMongoDatabase>(provider =>
+        {
+            var dbSettings = provider.GetService<IOptions<ExecutionResultsDatabaseSettings>>();
+
+            var mongoClient = new MongoClient(
+                dbSettings.Value.ConnectionString);
+
+            var mongoDatabase = mongoClient.GetDatabase(
+                dbSettings.Value.DatabaseName);
+
+            return mongoDatabase;
+        });
+
+        services.AddScoped<IMongoCollection<ScriptExecutionResult>>(provider =>
+        {
+            var dbSettings = provider.GetService<IOptions<ExecutionResultsDatabaseSettings>>();
+            var mongoDatabase = provider.GetService<IMongoDatabase>();
+
+            var collection = mongoDatabase
+                .GetCollection<ScriptExecutionResult>(dbSettings.Value.ExecutionResultsCollectionName);
+
+            return collection;
+        });
+
         services.AddSingleton<IMessageWriter, MessageWriter>(provider =>
         {
             var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
