@@ -51,11 +51,11 @@ public class ScriptRunnerService : IScriptRunnerService
 
             result.Results = await _runner.ExecuteInProcess(
                 compiledAssembly: compileResult.Assembly,
-                args: Array.Empty<string>(), 
+                args: Array.Empty<string>(),
                 workerCount: script.WorkerCount
                 );
 
-            if (result.Results.All(x => !string.IsNullOrEmpty(x.Error)))
+            if (result.Results.All(x => string.IsNullOrEmpty(x.Error)))
             {
                 result.Status = ExecutionStatus.Success;
             }
