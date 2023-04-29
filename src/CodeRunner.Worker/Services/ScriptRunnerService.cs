@@ -60,6 +60,10 @@ public class ScriptRunnerService : IScriptRunnerService
             {
                 result.Status = ExecutionStatus.Success;
             }
+            else
+            {
+                result.Status = ExecutionStatus.Failed;
+            }
         }
         catch(Exception ex)
         {

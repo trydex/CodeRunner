@@ -2,6 +2,7 @@ namespace CodeRunner.Worker.Models;
 
 public enum ExecutionStatus
 {
-    Failed = 0,
-    Success = 1
+    Pending = 0,
+    Failed = 1,
+    Success = 2
 }

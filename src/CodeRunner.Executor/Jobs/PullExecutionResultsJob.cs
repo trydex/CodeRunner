@@ -38,6 +38,8 @@ public class PullExecutionResultsJob : IJob
         try
         {
             var executionResult = _executeResultsConsumer.Consume<ExecutionResult>();
+            executionResult.Status = ExecutionState.Done;
+
             await _executionResultsRepository.UpdateAsync(executionResult.Id, executionResult);
         }
         catch (Exception ex)
