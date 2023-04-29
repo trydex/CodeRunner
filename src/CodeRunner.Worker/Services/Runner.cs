@@ -48,7 +48,16 @@ public class Runner : IRunner
             {
                 var process = new Process { StartInfo = processStartInfo };
                 process.Start();
-                process.WaitForExit();
+                if (!process.WaitForExit(TimeSpan.FromSeconds(30)))
+                {
+                    process.Kill();
+
+                    return new ProcessResult
+                    {
+                        Id = workerId,
+                        Error = "Timeout limit exceeded"
+                    };
+                }
 
                 var output = process.StandardOutput.ReadToEnd();
                 var error = process.StandardError.ReadToEnd();
@@ -70,9 +79,32 @@ public class Runner : IRunner
             .Select(x => x.Result)
             .ToList();
 
-        File.Delete(dllPath);
-        File.Delete(runtimeConfigPath);
+        TryDeleteFile(dllPath);
+        TryDeleteFile(runtimeConfigPath);
 
         return workerResults;
+    }
+
+    private static void TryDeleteFile(string path, int attemptCount = 5)
+    {
+        while (attemptCount > 0)
+        {
+            try
+            {
+                File.Delete(path);
+                break;
+            }
+            catch(Exception)
+            {
+                attemptCount--;
+
+                if (attemptCount == 0)
+                {
+                    throw;
+                }
+
+                Thread.Sleep(300);
+            }
+        }
     }
 }
