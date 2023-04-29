@@ -1,12 +1,10 @@
 using CodeRunner.Executor.Extensions;
 using CodeRunner.Executor.Settings;
-using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
-
+builder.Services.AddCors();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.RegisterModules();
@@ -25,8 +23,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.MapEndpoints();
+
+var uiOrigin = app.Configuration.GetSection("CORS")["UIOrigin"];
+
+app.UseCors(x => x
+    .WithOrigins(uiOrigin)
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
 
 app.Run();
