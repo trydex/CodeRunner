@@ -3,14 +3,15 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
-COPY ["src/CodeRunner.Worker/CodeRunner.Worker.csproj", "CodeRunner.Worker/"]
-RUN dotnet restore "src/CodeRunner.Worker/CodeRunner.Worker.csproj"
-COPY . .
-WORKDIR "/src/CodeRunner.Worker"
-RUN dotnet build "CodeRunner.Worker.csproj" -c Release -o /app/build
+COPY ["CodeRunner.Worker/", "/src/CodeRunner.Worker"]
+COPY ["CodeRunner.Common.Kafka/", "/src/CodeRunner.Common.Kafka"]
+COPY ["CodeRunner.Common.Quartz/", "/src/CodeRunner.Common.Quartz"]
+
+RUN dotnet restore "CodeRunner.Worker/CodeRunner.Worker.csproj"
+RUN dotnet build "CodeRunner.Worker/CodeRunner.Worker.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "CodeRunner.Worker.csproj" -c Release -o /app/publish
+RUN dotnet publish "CodeRunner.Worker/CodeRunner.Worker.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
