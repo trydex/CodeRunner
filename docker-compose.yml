@@ -61,7 +61,7 @@ services:
 
   kafka:
     container_name: kafka
-    image: bitnami/kafka:latest
+    image: bitnami/kafka:3.4.0-debian-11-r21
     restart: on-failure
     ports:
       - "9092:9092"
