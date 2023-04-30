@@ -7,7 +7,7 @@
         </button>
         <div class="editor-input">
           <label for="processes-input">Processes</label>
-          <input type="number" id="processes-input" min="1" max="10" name="processes" v-model="processCount">
+          <input dir="rtl" type="number" id="processes-input" min="1" max="10" name="processes" v-model="processCount">
         </div>
         <button class="editor-button clear" @click="clearEditor">
           <font-awesome-icon icon="fa-solid fa-trash" />
@@ -47,7 +47,6 @@ export default {
   name: 'CodeRunner',
   mounted() {
     this.templates = templates;
-    ace.config.set("basePath", "/node_modules/ace-builds/src-noconflict");
 
     const inputEditor = ace.edit("input-editor");
     const outputEditor = ace.edit("output-editor");
@@ -64,7 +63,7 @@ export default {
     return {
       currentTemplateIndex: 0,
       templates: [],
-      processCount: 3,
+      processCount: 1,
       isExecuting: false
     }
   },
