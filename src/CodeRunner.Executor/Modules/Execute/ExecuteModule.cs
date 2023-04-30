@@ -20,7 +20,7 @@ public class ExecuteModule : IModule
 
     public IEndpointRouteBuilder MapEndpoints(IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/execute", ExecuteScriptEndpoint.Run);
+        endpoints.MapPost("/execute", ExecuteScriptEndpoint.Execute);
         endpoints.MapGet("/execute/{scriptId}", ExecuteScriptEndpoint.GetResult);
 
         return endpoints;
