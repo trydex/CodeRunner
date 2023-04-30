@@ -37,7 +37,7 @@ public class PullExecutionResultsJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation($"Job with key {context.JobDetail.Key.Name} started");
+        _logger.LogInformation($"Job with key {0} started", context.JobDetail.Key.Name);
 
         try
         {
@@ -54,10 +54,10 @@ public class PullExecutionResultsJob : IJob
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, $"Job with key {context.JobDetail.Key.Name} failed");
+            _logger.LogError(ex, $"Job with key {0} failed", context.JobDetail.Key.Name);
             throw;
         }
 
-        _logger.LogInformation($"Job with key {context.JobDetail.Key.Name} finished");
+        _logger.LogInformation($"Job with key {0} finished", context.JobDetail.Key.Name);
     }
 }

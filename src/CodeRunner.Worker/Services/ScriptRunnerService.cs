@@ -27,7 +27,7 @@ public class ScriptRunnerService : IScriptRunnerService
 
     public async Task<ScriptExecutionResult> Run(Script script)
     {
-        _logger.LogInformation($"Execute script with Id = {script?.Id}");
+        _logger.LogInformation($"Execute script with Id = {0}", script?.Id);
 
         var result = new ScriptExecutionResult
         {
@@ -45,7 +45,7 @@ public class ScriptRunnerService : IScriptRunnerService
             {
                 result.CompilationErrors = compileResult.Errors.ToList();
 
-                _logger.LogInformation($"Execute script with Id = {script?.Id} aborted by compile errors");
+                _logger.LogInformation($"Execute script with Id = {0} aborted by compile errors", script?.Id);
 
                 return result;
             }
@@ -68,10 +68,10 @@ public class ScriptRunnerService : IScriptRunnerService
         catch(Exception ex)
         {
             result.Status = ExecutionStatus.Failed;
-            _logger.LogError(ex, $"Execute script with Id = {script?.Id} failed");
+            _logger.LogError(ex, $"Execute script with Id = {0} failed", script?.Id);
         }
 
-        _logger.LogInformation($"Execute script with Id = {script?.Id} finished");
+        _logger.LogInformation($"Execute script with Id = {0} finished", script?.Id);
 
         return result;
     }
