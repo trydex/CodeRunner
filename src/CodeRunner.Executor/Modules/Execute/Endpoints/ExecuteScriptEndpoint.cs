@@ -51,8 +51,6 @@ public static class ExecuteScriptEndpoint
             throw;
         }
 
-        logger.LogInformation("Try to get script execution result from cache by hash");
-
         return result!;
     }
 
