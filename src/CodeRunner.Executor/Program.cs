@@ -25,10 +25,8 @@ if (app.Environment.IsDevelopment())
 
 app.MapEndpoints();
 
-var uiOrigin = app.Configuration.GetSection("CORS")["UIOrigin"];
-
 app.UseCors(x => x
-    .WithOrigins(uiOrigin)
+    .AllowAnyOrigin()
     .AllowAnyMethod()
     .AllowAnyHeader()
 );
