@@ -16,6 +16,8 @@
     "ace-builds": "^1.18.0",
     "axios": "^1.4.0",
     "highlight.js": "^11.7.0",
+    "rollup-plugin-copy": "^3.4.0",
+    "vite-plugin-copy": "^0.1.6",
     "vue": "^3.2.47",
     "vue-router": "^4.1.6"
   },
