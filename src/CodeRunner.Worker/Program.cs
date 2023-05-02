@@ -29,7 +29,11 @@ public class Program
         return Host.CreateDefaultBuilder()
             .ConfigureAppConfiguration(configurationBuilder =>
             {
-                configurationBuilder.AddJsonFile(AppSettingsConstants.FileName);
+                configurationBuilder.AddJsonFile(AppSettingsConstants.FileName, optional: true, reloadOnChange: true);
+
+#if DEBUG
+                configurationBuilder.AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true);
+#endif
                 Configuration = configurationBuilder.Build();
             })
             .ConfigureServices(ConfigureServices);
