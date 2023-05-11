@@ -9,7 +9,6 @@ using Confluent.Kafka;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Quartz;
-using StackExchange.Redis;
 
 namespace CodeRunner.Executor.Extensions;
 
@@ -20,7 +19,7 @@ public static class ServiceCollectionExtensions
         services.Configure<BusSettings>(configuration.GetSection("Bus"));
         services.Configure<ScriptsDatabaseSettings>(configuration.GetSection("ScriptsDatabase"));
         services.Configure<CacheSettings>(configuration.GetSection("Cache"));
-        services.Configure<CacheSettings>(configuration.GetSection("Jobs"));
+        services.Configure<JobSettings>(configuration.GetSection("Jobs"));
 
         return services;
     }
@@ -94,14 +93,11 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddCache(this IServiceCollection services)
+    public static IServiceCollection AddCache(this IServiceCollection services, CacheSettings cacheSettings)
     {
-        services.AddSingleton<IConnectionMultiplexer>(provider =>
+        services.AddStackExchangeRedisCache(options =>
         {
-            var cacheSettings = provider.GetService<IOptions<CacheSettings>>().Value;
-            var multiplexer = ConnectionMultiplexer.Connect(cacheSettings.ConnectionString);
-
-            return multiplexer;
+            options.Configuration = cacheSettings.ConnectionString;
         });
 
         services.AddSingleton<ICacheService, CacheService>();

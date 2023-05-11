@@ -3,6 +3,7 @@ using CodeRunner.Common.Kafka.Producer;
 using CodeRunner.Executor.Modules.Execute.Models;
 using CodeRunner.Executor.Repositories;
 using CodeRunner.Executor.Services;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace CodeRunner.Executor.Modules.Execute.Endpoints;
 

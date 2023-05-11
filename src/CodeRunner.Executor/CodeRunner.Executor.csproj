@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.4" />
+        <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="7.0.5" />
         <PackageReference Include="MongoDB.Driver" Version="2.19.1" />
         <PackageReference Include="Quartz.Extensions.Hosting" Version="3.6.2" />
         <PackageReference Include="StackExchange.Redis" Version="2.6.104" />
