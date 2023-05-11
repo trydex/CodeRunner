@@ -6,7 +6,6 @@ using CodeRunner.Executor.Modules.Execute.Models;
 using CodeRunner.Executor.Services;
 using CodeRunner.Executor.Settings;
 using Confluent.Kafka;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using Quartz;
 
@@ -14,78 +13,49 @@ namespace CodeRunner.Executor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection ConfigureSettings(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddBusServices(this IServiceCollection services, BusSettings busSettings)
     {
-        services.Configure<BusSettings>(configuration.GetSection("Bus"));
-        services.Configure<ScriptsDatabaseSettings>(configuration.GetSection("ScriptsDatabase"));
-        services.Configure<CacheSettings>(configuration.GetSection("Cache"));
-        services.Configure<JobSettings>(configuration.GetSection("Jobs"));
-
-        return services;
-    }
-
-    public static IServiceCollection AddBusServices(this IServiceCollection services)
-    {
-        services.AddSingleton<IMessageProducer, MessageProducer>(provider =>
-        {
-            var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
-
-            return new MessageProducer(new MessageProducerOptions
+        services.AddSingleton<IMessageProducer, MessageProducer>(_ =>
+            new MessageProducer(new MessageProducerOptions
             {
                 Server = busSettings.Server,
                 Topic = busSettings.ScriptsTopicName
-            });
-        });
+            }));
 
-        services.AddSingleton<IMessageConsumer, MessageConsumer>(provider =>
-        {
-            var busSettings = provider.GetService<IOptions<BusSettings>>().Value;
-
-            return new MessageConsumer(new MessageConsumerOptions
+        services.AddSingleton<IMessageConsumer, MessageConsumer>(_ =>
+            new MessageConsumer(new MessageConsumerOptions
             {
                 Server = busSettings.Server,
                 Topic = busSettings.ResultsTopicName,
                 Group = busSettings.ResultsConsumerGroup,
                 AutoOffsetReset = AutoOffsetReset.Latest
-            });
-        });
+            }));
 
         return services;
     }
 
-    public static IServiceCollection AddDataBase(this IServiceCollection services)
+    public static IServiceCollection AddDataBase(this IServiceCollection services, ScriptsDatabaseSettings dbSettings)
     {
-        services.AddScoped<IMongoDatabase>(provider =>
+        services.AddScoped<IMongoDatabase>(_ =>
         {
-            var dbSettings = provider.GetService<IOptions<ScriptsDatabaseSettings>>();
-
-            var mongoClient = new MongoClient(
-                dbSettings.Value.ConnectionString);
-
-            var mongoDatabase = mongoClient.GetDatabase(
-                dbSettings.Value.DatabaseName);
+            var mongoClient = new MongoClient(dbSettings.ConnectionString);
+            var mongoDatabase = mongoClient.GetDatabase(dbSettings.DatabaseName);
 
             return mongoDatabase;
         });
 
         services.AddScoped<IMongoCollection<SubmittedScript>>(provider =>
         {
-            var dbSettings = provider.GetService<IOptions<ScriptsDatabaseSettings>>();
             var mongoDatabase = provider.GetService<IMongoDatabase>();
-
-            var collection = mongoDatabase
-                .GetCollection<SubmittedScript>(dbSettings.Value.ScriptsCollectionName);
+            var collection = mongoDatabase.GetCollection<SubmittedScript>(dbSettings.ScriptsCollectionName);
 
             return collection;
         });
 
         services.AddScoped<IMongoCollection<ExecutionResult>>(provider =>
         {
-            var dbSettings = provider.GetService<IOptions<ScriptsDatabaseSettings>>();
             var mongoDatabase = provider.GetService<IMongoDatabase>();
-
-            var collection = mongoDatabase
-                .GetCollection<ExecutionResult>(dbSettings.Value.ExecutionResultsCollectionName);
+            var collection = mongoDatabase.GetCollection<ExecutionResult>(dbSettings.ExecutionResultsCollectionName);
 
             return collection;
         });
@@ -95,15 +65,13 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCache(this IServiceCollection services, CacheSettings cacheSettings)
     {
-        services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = cacheSettings.ConnectionString;
-        });
+        services.AddStackExchangeRedisCache(options => { options.Configuration = cacheSettings.ConnectionString; });
 
         services.AddSingleton<ICacheService, CacheService>();
 
         return services;
     }
+
     public static IServiceCollection AddQuartzJobs(this IServiceCollection services, JobSettings jobSettings)
     {
         services.AddScoped<PullExecutionResultsJob>();
