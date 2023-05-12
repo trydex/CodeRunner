@@ -1,5 +1,5 @@
+using CodeRunner.Common.Kafka.Messages;
 using CodeRunner.Worker.Models;
-using CodeRunner.Worker.Repositories;
 using Microsoft.Extensions.Logging;
 
 namespace CodeRunner.Worker.Services;

@@ -1,15 +1,15 @@
-using CodeRunner.Common;
+using CodeRunner.Common.Kafka.Messages;
 using CodeRunner.Common.Kafka.Producer;
+using CodeRunner.Executor.Extensions;
 using CodeRunner.Executor.Modules.Execute.Models;
 using CodeRunner.Executor.Repositories;
 using CodeRunner.Executor.Services;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace CodeRunner.Executor.Modules.Execute.Endpoints;
 
 public static class ExecuteScriptEndpoint
 {
-    public static async Task<ExecutionResult> Execute(
+    public static async Task<ScriptExecutionResult> Execute(
         IMessageProducer messageProducer,
         IScriptsRepository scriptsRepository,
         IExecutionResultsRepository executionResultsRepository,
@@ -17,10 +17,10 @@ public static class ExecuteScriptEndpoint
         SubmittedScript script,
         ILogger<ExecuteModule> logger)
     {
-        var result = new ExecutionResult
+        var result = new ScriptExecutionResult
         {
             Id = script.Id,
-            Status = ExecutionState.Pending
+            Status = ExecutionStatus.Pending
         };
 
         try
@@ -28,7 +28,7 @@ public static class ExecuteScriptEndpoint
             var scriptHashCode = script.GetHashCode();
             logger.LogInformation($"Trying to get the result of executing the script with Id = {0} from the cache by hash = {1}", script.Id, scriptHashCode);
 
-            var (existsInCache, cachedResult) = await cacheService.TryGetValue<int, ExecutionResult>(scriptHashCode);
+            var (existsInCache, cachedResult) = await cacheService.TryGetValue<int, ScriptExecutionResult>(scriptHashCode);
             if (!existsInCache)
             {
                 await cacheService.SetValue(script.Id, scriptHashCode);
@@ -37,7 +37,7 @@ public static class ExecuteScriptEndpoint
                 await scriptsRepository.CreateAsync(script);
 
                 logger.LogInformation($"Enqueue the script with Id = {0} to the message broker", script.Id);
-                await messageProducer.Write(script);
+                await messageProducer.Write(script.ToMessage());
 
                 await executionResultsRepository.CreateAsync(result);
             }
@@ -55,7 +55,7 @@ public static class ExecuteScriptEndpoint
         return result!;
     }
 
-    public static async Task<ExecutionResult> GetResult(
+    public static async Task<ScriptExecutionResult> GetResult(
         Guid scriptId,
         IExecutionResultsRepository executionResultsRepository,
         ICacheService cacheService)
@@ -63,7 +63,7 @@ public static class ExecuteScriptEndpoint
         var (hashCodeExistsInCache, hashCode) = await cacheService.TryGetValue<Guid, int>(scriptId);
         if (hashCodeExistsInCache)
         {
-            var (resultExistsInCache, cachedExecutionResult) = await cacheService.TryGetValue<int, ExecutionResult>(hashCode);
+            var (resultExistsInCache, cachedExecutionResult) = await cacheService.TryGetValue<int, ScriptExecutionResult>(hashCode);
             if (resultExistsInCache)
             {
                 return cachedExecutionResult!;

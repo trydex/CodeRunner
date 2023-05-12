@@ -1,5 +1,6 @@
 using CodeRunner.Common.Kafka.Consumer;
-using CodeRunner.Executor.Modules.Execute.Models;
+using CodeRunner.Common.Kafka.Messages;
+using CodeRunner.Executor.Extensions;
 using CodeRunner.Executor.Repositories;
 using CodeRunner.Executor.Services;
 using Quartz;
@@ -30,8 +31,7 @@ public class PullExecutionResultsJob : IJob
 
         try
         {
-            var executionResult = _executeResultsConsumer.Consume<ExecutionResult>();
-            executionResult.Status = ExecutionState.Done;
+            var executionResult = _executeResultsConsumer.Consume<ScriptExecutionResultMessage>().ToModel();
 
             var (hashCodeExistsInCache, hashCode) = await _cacheService.TryGetValue<Guid, int>(executionResult.Id);
             if (hashCodeExistsInCache)

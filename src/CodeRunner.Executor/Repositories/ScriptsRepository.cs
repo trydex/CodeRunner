@@ -1,6 +1,4 @@
 using CodeRunner.Executor.Modules.Execute.Models;
-using CodeRunner.Executor.Settings;
-using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
 namespace CodeRunner.Executor.Repositories;

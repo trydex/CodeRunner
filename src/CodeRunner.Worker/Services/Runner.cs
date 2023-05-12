@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics;
-using CodeRunner.Worker.Models;
+using CodeRunner.Common.Kafka.Messages;
 
 namespace CodeRunner.Worker.Services;
 

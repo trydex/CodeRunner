@@ -1,7 +1,7 @@
-using CodeRunner.Common;
 using CodeRunner.Common.Kafka.Consumer;
+using CodeRunner.Common.Kafka.Messages;
 using CodeRunner.Common.Kafka.Producer;
-using CodeRunner.Worker.Models;
+using CodeRunner.Worker.Extensions;
 using CodeRunner.Worker.Repositories;
 using CodeRunner.Worker.Services;
 using Microsoft.Extensions.Logging;
@@ -35,11 +35,11 @@ public class CodeExecutionJob : IJob
 
         try
         {
-            var script = _scriptConsumer.Consume<Script>();
-            var result = await _scriptRunnerService.Run(script);
+            var scriptMessage = _scriptConsumer.Consume<ScriptMessage>();
+            var executionResult = await _scriptRunnerService.Run(scriptMessage.ToModel());
 
-            await _scriptResultsRepository.CreateAsync(result);
-            await _resultProducer.Write(result);
+            await _scriptResultsRepository.CreateAsync(executionResult);
+            await _resultProducer.Write(executionResult.ToMessage());
         }
         catch (Exception ex)
         {

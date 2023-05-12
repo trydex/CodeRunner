@@ -2,6 +2,7 @@ using CodeRunner.Executor.Extensions;
 using CodeRunner.Executor.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
+
 var configuration = builder.Configuration;
 
 // Add services to the container.

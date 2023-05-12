@@ -52,10 +52,10 @@ public static class ServiceCollectionExtensions
             return collection;
         });
 
-        services.AddScoped<IMongoCollection<ExecutionResult>>(provider =>
+        services.AddScoped<IMongoCollection<ScriptExecutionResult>>(provider =>
         {
             var mongoDatabase = provider.GetService<IMongoDatabase>();
-            var collection = mongoDatabase.GetCollection<ExecutionResult>(dbSettings.ExecutionResultsCollectionName);
+            var collection = mongoDatabase.GetCollection<ScriptExecutionResult>(dbSettings.ExecutionResultsCollectionName);
 
             return collection;
         });

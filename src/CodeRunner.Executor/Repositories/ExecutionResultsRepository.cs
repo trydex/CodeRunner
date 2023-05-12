@@ -5,29 +5,29 @@ namespace CodeRunner.Executor.Repositories;
 
 public interface IExecutionResultsRepository
 {
-    public Task<ExecutionResult?> GetAsync(Guid id);
-    public Task CreateAsync(ExecutionResult script);
-    Task UpdateAsync(Guid id, ExecutionResult updatedScript);
+    public Task<ScriptExecutionResult?> GetAsync(Guid id);
+    public Task CreateAsync(ScriptExecutionResult script);
+    Task UpdateAsync(Guid id, ScriptExecutionResult updatedScript);
 }
 
 public class ExecutionResultsRepository : IExecutionResultsRepository
 {
-    private readonly IMongoCollection<ExecutionResult> _collection;
+    private readonly IMongoCollection<ScriptExecutionResult> _collection;
 
-    public ExecutionResultsRepository(IMongoCollection<ExecutionResult> collection)
+    public ExecutionResultsRepository(IMongoCollection<ScriptExecutionResult> collection)
     {
         _collection = collection;
     }
 
-    public async Task<List<ExecutionResult>> GetAsync() =>
+    public async Task<List<ScriptExecutionResult>> GetAsync() =>
         await _collection.Find(_ => true).ToListAsync();
 
-    public async Task<ExecutionResult?> GetAsync(Guid id) =>
+    public async Task<ScriptExecutionResult?> GetAsync(Guid id) =>
         await _collection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task CreateAsync(ExecutionResult script) =>
+    public async Task CreateAsync(ScriptExecutionResult script) =>
         await _collection.InsertOneAsync(script);
 
-    public async Task UpdateAsync(Guid id, ExecutionResult updatedScript) =>
+    public async Task UpdateAsync(Guid id, ScriptExecutionResult updatedScript) =>
         await _collection.ReplaceOneAsync(x => x.Id == id, updatedScript);
 }
