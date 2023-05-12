@@ -1,9 +1,10 @@
 using CodeRunner.Common.Kafka.Consumer;
 using CodeRunner.Common.Kafka.Messages;
 using CodeRunner.Common.Kafka.Producer;
+using CodeRunner.Worker.CodeRunners;
+using CodeRunner.Worker.CodeRunners.CSharp;
 using CodeRunner.Worker.Extensions;
 using CodeRunner.Worker.Repositories;
-using CodeRunner.Worker.Services;
 using Microsoft.Extensions.Logging;
 using Quartz;
 
@@ -15,17 +16,18 @@ public class CodeExecutionJob : IJob
     private readonly IMessageProducer _resultProducer;
     private readonly IScriptResultsRepository _scriptResultsRepository;
     private readonly IScriptRunnerService _scriptRunnerService;
+
     private readonly ILogger<CodeExecutionJob> _logger;
 
     public CodeExecutionJob(IMessageConsumer scriptConsumer,
         IMessageProducer resultProducer,
-        IScriptRunnerService scriptRunnerService,
         IScriptResultsRepository scriptResultsRepository,
+        IScriptRunnerService scriptRunnerService,
         ILogger<CodeExecutionJob> logger)
     {
         _scriptConsumer = scriptConsumer;
-        _scriptRunnerService = scriptRunnerService;
         _scriptResultsRepository = scriptResultsRepository;
+        _scriptRunnerService = scriptRunnerService;
         _logger = logger;
         _resultProducer = resultProducer;
     }

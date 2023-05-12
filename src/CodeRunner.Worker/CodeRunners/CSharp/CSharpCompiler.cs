@@ -4,20 +4,20 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
 
-namespace CodeRunner.Worker.Services;
+namespace CodeRunner.Worker.CodeRunners.CSharp;
 
 public record CompileResult(bool Success, byte[] Assembly, IEnumerable<string> Errors);
 
-public interface ICompiler
+public interface ICSharpCompiler
 {
     CompileResult Compile(string source);
 }
 
-public class Compiler : ICompiler
+public class CSharpCompiler : ICSharpCompiler
 {
-    private readonly ILogger<Compiler> _logger;
+    private readonly ILogger<CSharpCompiler> _logger;
 
-    public Compiler(ILogger<Compiler> logger)
+    public CSharpCompiler(ILogger<CSharpCompiler> logger)
     {
         _logger = logger;
     }

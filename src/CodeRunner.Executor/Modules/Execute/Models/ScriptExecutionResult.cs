@@ -10,6 +10,6 @@ public class ScriptExecutionResult
     [BsonRepresentation(BsonType.String)]
     public Guid Id { get; set; }
     public ExecutionStatus Status { get; set; }
-    public IReadOnlyList<ProcessResult> ProcessResults { get; set; }
+    public IReadOnlyList<ProcessOutput> ProcessResults { get; set; }
     public IReadOnlyList<string> CompilationErrors { get; set; }
 }

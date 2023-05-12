@@ -16,13 +16,13 @@ export default class ExecutorApiClient {
       });
   }
 
-  async executeCode(code, processCount, processResultFunc) {
+  async executeCode(code, processCount, languageTypeNumber, processResultFunc) {
     if(this._getResultTimeout)
       clearTimeout(this._getResultTimeout);
 
     const executeUrl = api.executor.endpoints.execute();
       
-    let response = await this.httpClient.post(executeUrl, {code, processCount});
+    let response = await this.httpClient.post(executeUrl, {code, processCount, language: languageTypeNumber});
     let executionResult = response.data;
 
     await this._getResult(executionResult.id, processResultFunc);

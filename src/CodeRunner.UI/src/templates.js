@@ -1,7 +1,8 @@
-export default [
-    {
-        processCount: 1,
-        code: `
+export default {
+    "csharp" : [
+        {
+            processCount: 1,
+            code: `
 using System;
 
 Console.WriteLine("Hello World");`
@@ -20,6 +21,23 @@ Console.WriteLine("Hi from process #" + Process.GetCurrentProcess().Id);`
 using System;
 
 for(var i = 0; i < 10; i++)
-  Console.WriteLine(i);`
+    Console.WriteLine(i);`
     }
+],
+
+    "golang": [
+    {
+        processCount: 1,
+        code: `
+package main
+
+import (
+    "fmt"
+)
+
+func main() {
+    fmt.Printf("Hello World")
+}`
+    },
 ]
+}

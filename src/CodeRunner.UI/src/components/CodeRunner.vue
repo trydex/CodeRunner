@@ -14,6 +14,12 @@
         </button>
       </div>
       <div class="editor-control-container template-switcher-container">
+        <div class="script-language-dropdown">
+            <select name="script-language" v-model="selectedLanguage" @change="onLanguageChange">
+              <option value="csharp">C#</option>
+              <option value="golang">Go</option>
+            </select> 
+        </div>
         <button class="editor-button template-switcher" @click="changeTemplateIndex(currentTemplateIndex - 1)">
           <font-awesome-icon icon="fa-solid fa-angle-left" />  
         </button>
@@ -41,12 +47,12 @@ import ace from 'ace-builds/src-noconflict/ace'
 import "ace-builds/src-noconflict/mode-csharp";
 import "ace-builds/src-noconflict/mode-markdown";
 import ExecutorApiClient from "../services/executorApiClient"
-import templates from "../templates"
+import allTemplates from "../templates"
 
 export default {
   name: 'CodeRunner',
   mounted() {
-    this.templates = templates;
+    this.templates = allTemplates[this.selectedLanguage];
 
     const inputEditor = ace.edit("input-editor");
     const outputEditor = ace.edit("output-editor");
@@ -57,14 +63,19 @@ export default {
     this.configureEditor(inputEditor, "csharp", 'tomorrow_night', false);
     this.configureEditor(outputEditor, "markdown", 'chaos', true);
 
-    this.loadTemplate(templates[0]);
+    this.loadTemplate(this.templates[0]);
   },
   data() {
     return {
       currentTemplateIndex: 0,
       templates: [],
       processCount: 1,
-      isExecuting: false
+      selectedLanguage: "csharp",
+      isExecuting: false,
+      language2code: {
+        "csharp" : 1,
+        "golang": 2
+      }
     }
   },
   methods: {
@@ -77,7 +88,7 @@ export default {
       }
 
       this.currentTemplateIndex = newIndex;
-      const template = templates[this.currentTemplateIndex];
+      const template = this.templates[this.currentTemplateIndex];
       this.loadTemplate(template);
     },
     loadTemplate(template) {
@@ -102,7 +113,8 @@ export default {
       if (!this.executorApiClient)
         this.executorApiClient = new ExecutorApiClient();
 
-      await this.executorApiClient.executeCode(code, this.processCount, (executionResult) => {
+      const languageTypeNumber = this.language2code[this.selectedLanguage];
+      await this.executorApiClient.executeCode(code, this.processCount, languageTypeNumber, (executionResult) => {
         console.log('result received');
         console.log(executionResult);
 
@@ -130,13 +142,7 @@ export default {
 
       const doc = this.outputEditor.session.getDocument();
 
-      if(executionResult.compilationErrors)
-      {
-        for (const error of executionResult.compilationErrors) {
-          doc.insert({ row: doc.getLength(), column: 0 }, error + separator);
-        }
-      }
-      else if(executionResult.processResults){
+      if(executionResult.processResults){
         let str = `# Work report`;
 
         for (const processResult of executionResult.processResults) {
@@ -162,6 +168,14 @@ export default {
     },
     async copyToClipboard() {
       await navigator.clipboard.writeText(this.outputEditor.getValue());
+    },
+    onLanguageChange() {
+      this.currentTemplateIndex = 0;
+
+      this.templates = allTemplates[this.selectedLanguage];
+
+      this.loadTemplate(this.templates[this.currentTemplateIndex]);
+      this.configureEditor(this.inputEditor, this.selectedLanguage, 'tomorrow_night', false);
     }
   }
 }
@@ -274,7 +288,7 @@ export default {
 }
 
 .template-switcher-container {
-  margin-left: -200px;
+  margin-left: -250px;
   display: flex;
   align-items: center;
 }

@@ -12,5 +12,5 @@ public enum Language
 {
     Unknown = 0,
     CSharp = 1,
-    Golang= 2
+    Golang = 2
 }

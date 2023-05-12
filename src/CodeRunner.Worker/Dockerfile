@@ -16,4 +16,7 @@ RUN dotnet publish "CodeRunner.Worker/CodeRunner.Worker.csproj" -c Release -o /a
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
+# Install prerequisites
+RUN apt-get update && apt-get install -y golang-go
 ENTRYPOINT ["dotnet", "CodeRunner.Worker.dll"]

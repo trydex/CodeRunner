@@ -2,10 +2,12 @@
 using CodeRunner.Common.Kafka.Producer;
 using CodeRunner.Common.Quartz;
 using CodeRunner.Worker;
+using CodeRunner.Worker.CodeRunners;
+using CodeRunner.Worker.CodeRunners.CSharp;
+using CodeRunner.Worker.CodeRunners.Golang;
 using CodeRunner.Worker.Jobs;
 using CodeRunner.Worker.Models;
 using CodeRunner.Worker.Repositories;
-using CodeRunner.Worker.Services;
 using CodeRunner.Worker.Settings;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
@@ -71,11 +73,22 @@ public class Program
     {
         services.AddScoped<CodeExecutionJob>();
         services.AddScoped<ScriptRunnerService>();
-        services.AddScoped<IRuntimeConfigProvider, RuntimeConfigProvider>();
-        services.AddScoped<IRunner, Runner>();
-        services.AddScoped<ICompiler, Compiler>();
-        services.AddScoped<IScriptRunnerService, ScriptRunnerService>();
+
+        services.AddScoped<IProcessRunner, ProcessRunner>();
+
         services.AddScoped<IScriptResultsRepository, ScriptResultsRepository>();
+        services.AddScoped<IScriptRunnerFactory, ScriptRunnerFactory>();
+        services.AddScoped<IScriptRunnerService, ScriptRunnerService>();
+
+        /* CSharp */
+        services.AddScoped<ICSharpRuntimeConfigProvider, CSharpRuntimeConfigProvider>();
+        services.AddScoped<ICSharpCompiler, CSharpCompiler>();
+        services.AddScoped<CSharpScriptRunner>()
+            .AddScoped<IScriptRunner, CSharpScriptRunner>(x => x.GetService<CSharpScriptRunner>());
+
+        /* Golang */
+        services.AddScoped<GolangScriptRunner>();
+        services.AddScoped<IScriptRunner, GolangScriptRunner>(x => x.GetService<GolangScriptRunner>());
 
         var dbSettings = Configuration
             .GetSection(AppSettingsConstants.ExecutionResultsDatabaseSectionName)

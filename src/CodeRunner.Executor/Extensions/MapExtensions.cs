@@ -22,7 +22,7 @@ public static class MapExtensions
             Id = scriptExecutionResult.Id,
             Status = scriptExecutionResult.Status,
             CompilationErrors = scriptExecutionResult.CompilationErrors?.ToList(),
-            ProcessResults = scriptExecutionResult.ProcessResults?.Select(x => new ProcessResult
+            ProcessResults = scriptExecutionResult.ProcessResults?.Select(x => new ProcessOutput
             {
                 Id = x.Id,
                 Error = x.Error,

@@ -4,7 +4,7 @@ public class ScriptExecutionResultMessage
 {
     public Guid Id { get; set; }
     public ExecutionStatus Status { get; set; }
-    public IReadOnlyList<ProcessResult> ProcessResults { get; set; }
+    public IReadOnlyList<ProcessOutput> ProcessResults { get; set; }
     public IReadOnlyList<string> CompilationErrors { get; set; }
 }
 
@@ -15,7 +15,7 @@ public enum ExecutionStatus
     Success = 2
 }
 
-public class ProcessResult
+public class ProcessOutput
 {
     public int Id { get; set; }
     public string Output { get; set; }
