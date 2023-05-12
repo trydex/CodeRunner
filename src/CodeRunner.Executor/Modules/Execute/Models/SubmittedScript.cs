@@ -1,3 +1,4 @@
+using CodeRunner.Common.Kafka.Messages;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
@@ -14,9 +15,10 @@ public record SubmittedScript
 
     public int ProcessCount { get; set; }
     public string Code { get; set; }
+    public Language Language { get; set; }
 
     public override int GetHashCode()
     {
-        return Code.GetHashCode() + ProcessCount.GetHashCode();
+        return Code.GetHashCode() + ProcessCount.GetHashCode() + Language.GetHashCode();
     }
 }

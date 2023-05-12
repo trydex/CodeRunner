@@ -11,7 +11,8 @@ public static class MapExtensions
         {
             Id = script.Id,
             Code = script.Code,
-            ProcessCount = script.ProcessCount
+            ProcessCount = script.ProcessCount,
+            Language = script.Language
         };
     }
     public static ScriptExecutionResult ToModel(this ScriptExecutionResultMessage scriptExecutionResult)

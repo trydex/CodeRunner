@@ -11,7 +11,8 @@ public static class MapExtensions
         {
             Id = sm.Id,
             Code = sm.Code,
-            ProcessCount = sm.ProcessCount
+            ProcessCount = sm.ProcessCount,
+            Language = sm.Language
         };
     }
 
