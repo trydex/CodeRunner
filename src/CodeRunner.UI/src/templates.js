@@ -47,6 +47,7 @@ package main
 import (
     "fmt"
     "sync"
+    "time"
 )
 
 func main() {
@@ -54,15 +55,15 @@ func main() {
     wg := &sync.WaitGroup{}
 
     for i := 0; i < 10; i++ {
-        i := i
-        go func() {
+        go func(a int) {
             wg.Add(1)
             defer wg.Done()
 
-            fmt.Println(i)
-        }()
+            fmt.Println(a)
+        }(i)
     }
 
+    time.Sleep(1*time.Second)
     wg.Wait()
 }`
     },
