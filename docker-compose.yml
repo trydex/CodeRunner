@@ -31,8 +31,7 @@ services:
       context: ./src
       dockerfile: ./CodeRunner.Worker/Dockerfile
     depends_on:
-     - kafka
-     - database
+     - executor
 
   cache:
     container_name: cache
